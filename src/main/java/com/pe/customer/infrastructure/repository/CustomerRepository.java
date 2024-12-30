@@ -8,4 +8,5 @@ import com.pe.customer.domain.model.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
+	boolean existsByName(String name);
 }

@@ -16,6 +16,7 @@ import com.pe.customer.application.dto.CustomerResponse;
 import com.pe.customer.application.dto.MetricsResponse;
 import com.pe.customer.application.exception.CustomerAgeNoValidException;
 import com.pe.customer.application.exception.CustomerBirthDateException;
+import com.pe.customer.application.exception.CustomerDuplicateNameException;
 import com.pe.customer.application.exception.CustomerNotFoundException;
 import com.pe.customer.application.exception.DatabaseConnectionException;
 import com.pe.customer.application.service.CustomerService;
@@ -29,7 +30,11 @@ import com.pe.customer.util.ZodiacSignCalculator;
 public class CustomerServiceImpl implements CustomerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
-	private static final String NO_CUSTOMERS_FOUND_MESSAGE = "No se encontraron clientes para calcular métricas.";
+	private static final String CUSTOMERS_NO_FOUND_MESSAGE = "No se encontraron clientes para calcular métricas.";
+	private static final String CUSTOMERS_AGE_NO_VALID_MESSAGE = "La edad proporcionada no coincide con la fecha de nacimiento.";
+	private static final String CUSTOMERS_DATE_NO_VALID_MESSAGE = "La fecha de nacimiento no es válida.";
+	private static final String CUSTOMERS_BIRTHDATE_NO_VALID_MESSAGE = "La fecha de nacimiento no puede ser una fecha futura.";
+	private static final String CUSTOMER_DUPLICATE_NAME_MESSAGE = "Ya existe un cliente con el mismo nombre.";
 	
 	@Autowired
 	private CustomerRepository customerRepository;
@@ -42,6 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
 		try {
 			validateBirthDateField(customer.getBirthDate());
 			validateAgeField(customer);
+			validateDuplicateName(customer.getName());
 			return customerRepository.save(customer);
 		} catch (DataAccessException e) {
 			throw new DatabaseConnectionException("Error al registrar con la base de datos", e);
@@ -52,7 +58,7 @@ public class CustomerServiceImpl implements CustomerService {
 	private void validateAgeField(Customer customer) {
 		int age = calculateAge(customer.getBirthDate());
 		if (customer.getAge() != age) {
-            throw new CustomerAgeNoValidException("La edad proporcionada no coincide con la fecha de nacimiento.");
+            throw new CustomerAgeNoValidException(CUSTOMERS_AGE_NO_VALID_MESSAGE);
         }
 	}
 	
@@ -64,13 +70,20 @@ public class CustomerServiceImpl implements CustomerService {
 		return (int) yearsBetween;
 	}
 	
+	private void validateDuplicateName(String name) {
+        boolean exists = customerRepository.existsByName(name);
+        if (exists) {
+            throw new CustomerDuplicateNameException(CUSTOMER_DUPLICATE_NAME_MESSAGE);
+        }
+    }
+	
 	private void validateBirthDateField(String birthDate) {
             
         if (!ValidatorUtil.validateDate(birthDate)) {
-        	 throw new CustomerBirthDateException("La fecha de nacimiento no es válida.");
+        	 throw new CustomerBirthDateException(CUSTOMERS_DATE_NO_VALID_MESSAGE);
         }
         if (ValidatorUtil.validIfIsAfter(birthDate)) {
-            throw new CustomerBirthDateException("La fecha de nacimiento no puede ser una fecha futura.");
+            throw new CustomerBirthDateException(CUSTOMERS_BIRTHDATE_NO_VALID_MESSAGE);
         }
     }
 	
@@ -82,7 +95,7 @@ public class CustomerServiceImpl implements CustomerService {
 			
 			if (customers.isEmpty()) {
 				logger.error("No se encontraron clientes");
-	            throw new CustomerNotFoundException(NO_CUSTOMERS_FOUND_MESSAGE);
+	            throw new CustomerNotFoundException(CUSTOMERS_NO_FOUND_MESSAGE);
 	        }
 			
 			double averageAge = SetValueUtil.convertTwoDecimal(calculateAverageAge(customers));
