@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.pe.customer.application.exception.CustomerAgeNoValidException;
 import com.pe.customer.application.exception.CustomerBirthDateException;
+import com.pe.customer.application.exception.CustomerDuplicateNameException;
 import com.pe.customer.application.exception.CustomerNotFoundException;
 import com.pe.customer.application.exception.DatabaseConnectionException;
 
@@ -44,10 +45,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Map<String, String>> handleCustomerAgeNoValidException(CustomerAgeNoValidException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrors());
     }
-
-    @ExceptionHandler(CustomerNotFoundException.class)
+	
+	@ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<String> handleCustomerNotFoundException(CustomerNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CustomerDuplicateNameException.class)
+    public ResponseEntity<String> handleCustomerDuplicateNameException(CustomerDuplicateNameException ex) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
     }
     
     @ExceptionHandler(DatabaseConnectionException.class)

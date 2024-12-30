@@ -15,10 +15,13 @@ import com.pe.customer.application.dto.CustomerResponse;
 import com.pe.customer.application.dto.MetricsResponse;
 import com.pe.customer.application.service.CustomerService;
 import com.pe.customer.domain.model.Customer;
+import com.pe.customer.util.ConstantSwagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 
 @RestController
@@ -31,7 +34,12 @@ public class CustomerController {
 	@Operation(summary = "Crear un nuevo cliente", description = "Permite crear un cliente")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Cliente creado satisfactoriamente"),
-        @ApiResponse(responseCode = "400", description = "Validacion de errores de campos")
+        @ApiResponse(responseCode = "400", description = "Validación de errores de campos",
+        	content=@Content(mediaType = "application/json",
+        	schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_400_BAD_REQ))),
+        @ApiResponse(responseCode = "422", description = "Validación correcta pero no se puede registrar",
+    		content = @Content(mediaType = "application/json",
+    		schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_422_DUPLICATE_NAME )))
     })
 	@PostMapping
 	public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
@@ -42,7 +50,9 @@ public class CustomerController {
 	@Operation(summary = "Obtener métricas de los clientes", description = "Devuelve métricas como el promedio de edad y la desviación estándar de las edades de los clientes")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Métricas obtenidas exitosamente"),
-        @ApiResponse(responseCode = "400", description = "No se encontraron clientes para calcular métricas.")
+        @ApiResponse(responseCode = "422", description = "Consulta exitosa pero no se pudo calcular las métricas",
+        	content = @Content(mediaType = "application/json",
+        	schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_422_METRICS )))
     })
 	@GetMapping("/metrics")
     public ResponseEntity<MetricsResponse> getCustomerMetrics() {

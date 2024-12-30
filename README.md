@@ -19,10 +19,10 @@ Antes de ejecutar el microservicio, asegúrate de tener instalados los siguiente
 EC2 AWS - Servidor de Despliegue
 Java 17 o superior.
 Maven 3.6+ (para compilar el proyecto).
-AWS RDS MySQL configurado y con una base de datos creada.
+AWS RDS MySQL DATABASE configurado y con una base de datos creada.
 Spring Boot 3.
-Base de datos
 SWAGGER
+Flyway -> path: "src/main/resources/db/migration"
 
 Este microservicio se conecta a una base de datos MySQL alojada en AWS RDS. Asegúrate de tener una instancia de RDS configurada y accesible desde el servidor donde ejecutarás el microservicio.
 
@@ -64,7 +64,14 @@ Instalación y Configuración
 	management.endpoints.web.exposure.include=health,info,metrics
 	management.endpoint.health.show-details=always
 
-3. Compilar el proyecto
+3. Conectarse a la Base de Datos
+	
+	En caso se desea levantar las fuentes en local o algún otro servidor de despliegue se debe conectar a la base de datos con las credenciales en el Properties y se debe eliminar las tablas user y customer, agrego los script antes levantar el proyecto Spring boot.
+
+	DROP TABLE user;
+	DROP TABLE customer;
+
+4. Compilar el proyecto
 	
 	Si tienes Maven instalado, compila el proyecto utilizando el siguiente comando:
 	
@@ -96,3 +103,16 @@ Este microservicio utiliza Spring Security con autenticación básica Basic Oaut
 	POST /api/customer: Para registrar un nuevo cliente.
 	GET /api/customer: Para listar todos los clientes registrados.
 	GET /api/customer/metrics: Para obtener las métricas de los clientes (promedio de edad, desviación estándar, etc.).
+
+	NOTA:
+	En caso sea modificado el Username o Password, devolverá un error Http con Status: 401 Unauthorized
+
+
+MONITOREO ACTUATOR
+
+
+	GET /actuator/health
+	GET /actuator/metrics
+	GET /actuator/info
+
+
