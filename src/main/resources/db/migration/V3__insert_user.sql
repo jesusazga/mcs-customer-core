@@ -1,0 +1,1 @@
+insert into user (username, password, enabled) values ('testuser', '$2a$10$G0a9ESclz9lvD685VrSonOAEmrNEND.FuAMAf1xIIWZ9sOwSC1Gm2', true);
