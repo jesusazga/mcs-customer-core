@@ -30,43 +30,34 @@ public class CustomerController {
 
 	@Autowired
 	private CustomerService customerService;
-	
+
 	@Operation(summary = "Crear un nuevo cliente", description = "Permite crear un cliente")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Cliente creado satisfactoriamente"),
-        @ApiResponse(responseCode = "400", description = "Validación de errores de campos",
-        	content=@Content(mediaType = "application/json",
-        	schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_400_BAD_REQ))),
-        @ApiResponse(responseCode = "422", description = "Validación correcta pero no se puede registrar",
-    		content = @Content(mediaType = "application/json",
-    		schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_422_DUPLICATE_NAME )))
-    })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Cliente creado satisfactoriamente"),
+			@ApiResponse(responseCode = "400", description = "Validación de errores de campos", content = @Content(mediaType = "application/json", schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_400_BAD_REQ))),
+			@ApiResponse(responseCode = "401", description = "Error de Autorización", content = @Content(mediaType = "application/json", schema = @Schema(example = ""))),
+			@ApiResponse(responseCode = "422", description = "Validación correcta pero no se puede registrar", content = @Content(mediaType = "application/json", schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_422_DUPLICATE_NAME))) })
 	@PostMapping
 	public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
 		Customer createdCustomer = customerService.createCustomer(customer);
 		return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
 	}
-	
+
 	@Operation(summary = "Obtener métricas de los clientes", description = "Devuelve métricas como el promedio de edad y la desviación estándar de las edades de los clientes")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Métricas obtenidas exitosamente"),
-        @ApiResponse(responseCode = "422", description = "Consulta exitosa pero no se pudo calcular las métricas",
-        	content = @Content(mediaType = "application/json",
-        	schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_422_METRICS )))
-    })
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Métricas obtenidas exitosamente"),
+			@ApiResponse(responseCode = "401", description = "Error de Autorización", content = @Content(mediaType = "application/json", schema = @Schema(example = ""))),
+			@ApiResponse(responseCode = "422", description = "Consulta exitosa pero no se pudo calcular las métricas", content = @Content(mediaType = "application/json", schema = @Schema(example = ConstantSwagger.VALIDATION_ERROR_422_METRICS))) })
 	@GetMapping("/metrics")
-    public ResponseEntity<MetricsResponse> getCustomerMetrics() {
-        MetricsResponse metrics = customerService.getCustomerMetrics();
-        return ResponseEntity.ok(metrics);
-    }
-	
+	public ResponseEntity<MetricsResponse> getCustomerMetrics() {
+		MetricsResponse metrics = customerService.getCustomerMetrics();
+		return ResponseEntity.ok(metrics);
+	}
+
 	@Operation(summary = "Obtener todos los clientes", description = "Devuelve una lista de todos los clientes registrados")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Lista de clientes obtenido satisfactoriamente"),
-        @ApiResponse(responseCode = "500", description = "Error en el servidor")
-    })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Lista de clientes obtenido satisfactoriamente"),
+			@ApiResponse(responseCode = "401", description = "Error de Autorización", content = @Content(mediaType = "application/json", schema = @Schema(example = ""))) })
 	@GetMapping
-    public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
-        return ResponseEntity.ok(customerService.getAllCustomers());
-    }
+	public ResponseEntity<List<CustomerResponse>> getAllCustomers() {
+		return ResponseEntity.ok(customerService.getAllCustomers());
+	}
 }
